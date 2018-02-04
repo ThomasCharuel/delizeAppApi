@@ -5,7 +5,7 @@ const config = require('../../config');
 const ds = Datastore({
   projectId: config.GCLOUD_PROJECT
 });
-const kind = 'Dish';
+const kind = 'Order';
 // [END config]
 
 // Translates from Datastore's entity format to
@@ -68,10 +68,10 @@ function toDatastore (obj, nonIndexed) {
   return results;
 }
 
-// Lists all dishes in the Datastore sorted alphabetically by title.
+// Lists all orders in the Datastore sorted alphabetically by title.
 // The ``limit`` argument determines the maximum amount of results to
 // return per page. The ``token`` argument allows requesting additional
-// pages. The callback is invoked with ``(err, dishes, nextPageToken)``.
+// pages. The callback is invoked with ``(err, orders, nextPageToken)``.
 // [START list]
 function list (cb) {
   const q = ds.createQuery([kind]);
@@ -87,8 +87,8 @@ function list (cb) {
 }
 // [END list]
 
-// Creates a new dish or updates an existing dish with new data. The provided
-// data is automatically translated into Datastore format. The dish will be
+// Creates a new order or updates an existing order with new data. The provided
+// data is automatically translated into Datastore format. The order will be
 // queued for background processing.
 // [START update]
 function update (id, data, cb) {
@@ -101,7 +101,7 @@ function update (id, data, cb) {
 
   const entity = {
     key: key,
-    data: toDatastore(data, ['imageUrl', 'description'])
+    data: toDatastore(data, [])
   };
 
   ds.save(

@@ -5,6 +5,18 @@ const config = require('./config');
 // Dishes
 app.use('/dishes', require('./src/dishes/api'));
 
+// Orders
+app.use('/orders', require('./src/orders/api'));
+
+// Cooks
+app.use('/cooks', require('./src/cooks/api'));
+
+// Users
+app.use('/users', require('./src/users/api'));
+
+// Reviews
+app.use('/reviews', require('./src/reviews/api'));
+
 // Redirect root to /dishes
 app.get('/', (req, res) => {
   res.redirect('/dishes');

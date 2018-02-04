@@ -15,7 +15,7 @@ router.use(bodyParser.json());
  */
 router.get('/', (req, res, next) => {
   res.json({
-    hello: 'hello'
+    dishes: []
   })
 });
 
@@ -26,7 +26,7 @@ router.get('/', (req, res, next) => {
  * Create a new dish.
  */
 router.post('/', (req, res, next) => {
-  getModel().create(req.body, (err, entity) => {
+  model.create(req.body, (err, entity) => {
     if (err) {
       next(err);
       return;
@@ -34,6 +34,22 @@ router.post('/', (req, res, next) => {
     res.json(entity);
   });
 });
+
+/**
+ * GET /dishes/:id
+ *
+ * Retrieve a dish.
+ */
+router.get('/:dish', (req, res, next) => {
+  model.read(req.params.dish, (err, entity) => {
+    if (err) {
+      next(err);
+      return;
+    }
+    res.json(entity);
+  });
+});
+
 
 
 /**

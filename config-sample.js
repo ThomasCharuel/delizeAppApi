@@ -1,5 +1,5 @@
 module.exports = {
-  GLOUD_PROJECT: 'delize-back',
+  GLOUD_PROJECT: '',
   PORT: 8080
 };
 

@@ -1,6 +1,8 @@
 const Datastore = require('@google-cloud/datastore');
 const config = require('../../config');
 
+const userFollowsModel = require('../userFollows/model');
+
 // [START config]
 const ds = Datastore({
   projectId: config.GCLOUD_PROJECT
@@ -131,7 +133,17 @@ function read (id, cb) {
       cb(err);
       return;
     }
-    cb(null, fromDatastore(entity));
+
+    let user = fromDatastore(entity);
+
+    userFollowsModel.listForUser(Number(user.id), (err, entities) => {
+      if (err) {
+        next(err);
+        return;
+      }
+      user.follows = entities;
+      cb(null, user);
+    });
   });
 }
 

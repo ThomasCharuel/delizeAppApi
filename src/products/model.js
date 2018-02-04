@@ -5,7 +5,7 @@ const config = require('../../config');
 const ds = Datastore({
   projectId: config.GCLOUD_PROJECT
 });
-const kind = 'userFollow';
+const kind = 'Product';
 // [END config]
 
 // Translates from Datastore's entity format to
@@ -68,10 +68,10 @@ function toDatastore (obj, nonIndexed) {
   return results;
 }
 
-// Lists all userFollows in the Datastore sorted alphabetically by title.
+// Lists all products in the Datastore sorted alphabetically by title.
 // The ``limit`` argument determines the maximum amount of results to
 // return per page. The ``token`` argument allows requesting additional
-// pages. The callback is invoked with ``(err, userFollows, nextPageToken)``.
+// pages. The callback is invoked with ``(err, products, nextPageToken)``.
 // [START list]
 function list (cb) {
   const q = ds.createQuery([kind]);
@@ -87,23 +87,8 @@ function list (cb) {
 }
 // [END list]
 
-function listForUser(userId, cb) {
-
-  const q = ds.createQuery([kind])
-    .filter('userId', '=', userId);
-
-  ds.runQuery(q, (err, entities, nextQuery) => {
-    if (err) {
-      cb(err);
-      return;
-    }
-
-    cb(null, entities.map(fromDatastore));
-  });
-}
-
-// Creates a new userFollow or updates an existing userFollow with new data. The provided
-// data is automatically translated into Datastore format. The userFollow will be
+// Creates a new product or updates an existing product with new data. The provided
+// data is automatically translated into Datastore format. The product will be
 // queued for background processing.
 // [START update]
 function update (id, data, cb) {
@@ -146,7 +131,6 @@ function read (id, cb) {
       cb(err);
       return;
     }
-
     cb(null, fromDatastore(entity));
   });
 }
@@ -162,7 +146,6 @@ module.exports = {
   read,
   update,
   delete: _delete,
-  list,
-  listForUser
+  list
 };
 // [END exports]

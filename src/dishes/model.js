@@ -71,21 +71,19 @@ function toDatastore (obj, nonIndexed) {
 // Lists all dishes in the Datastore sorted alphabetically by title.
 // The ``limit`` argument determines the maximum amount of results to
 // return per page. The ``token`` argument allows requesting additional
-// pages. The callback is invoked with ``(err, books, nextPageToken)``.
+// pages. The callback is invoked with ``(err, dishes, nextPageToken)``.
 // [START list]
-function list (limit, token, cb) {
+function list (cb) {
   const q = ds.createQuery([kind])
-    .limit(limit)
-    .order('name')
-    .start(token);
+    .order('name');
 
   ds.runQuery(q, (err, entities, nextQuery) => {
     if (err) {
       cb(err);
       return;
     }
-    const hasMore = nextQuery.moreResults !== Datastore.NO_MORE_RESULTS ? nextQuery.endCursor : false;
-    cb(null, entities.map(fromDatastore), hasMore);
+  
+    cb(null, entities.map(fromDatastore));
   });
 }
 // [END list]
@@ -105,7 +103,7 @@ function update (id, data, cb) {
 
   const entity = {
     key: key,
-    data: toDatastore(data, [])
+    data: toDatastore(data, ['imageUrl', 'description'])
   };
 
   ds.save(

@@ -14,9 +14,13 @@ router.use(bodyParser.json());
  * Retrieve dishes
  */
 router.get('/', (req, res, next) => {
-  res.json({
-    dishes: []
-  })
+  model.list((err, entities) => {
+    if (err) {
+      next(err);
+      return;
+    }
+    res.json( entities );
+  });
 });
 
 

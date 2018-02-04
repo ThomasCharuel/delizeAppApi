@@ -1,6 +1,10 @@
 const Datastore = require('@google-cloud/datastore');
 const config = require('../../config');
 
+const dishesModel = require('../dishes/model');
+const reviewsModel = require('../reviews/model');
+
+
 // [START config]
 const ds = Datastore({
   projectId: config.GCLOUD_PROJECT
@@ -87,6 +91,56 @@ function list (cb) {
 }
 // [END list]
 
+function listForUser(userId, cb) {
+
+  const q = ds.createQuery([kind])
+    .filter('userId', '=', userId);
+
+  ds.runQuery(q, (err, entities, nextQuery) => {
+    if (err) {
+      cb(err);
+      return;
+    }
+
+    let orders = entities.map(fromDatastore);
+
+    // Get the dishes linked to an order
+    const ordersWithDish = orders.map( 
+      (order, i) => new Promise( resolve => {
+        dishesModel.read(order.dishId, (err, entity) => {
+          if (err) {
+            next(err);
+            return;
+          }
+          orders[i].dish = entity;
+          resolve();
+        })
+      })
+    )
+
+    // Get the revews linked to an order
+    const ordersWithReview = orders.map(
+      (order, i) => new Promise( resolve => {
+        reviewsModel.getForOrder(Number(order.id), (err, entity) => {
+          if (err) {
+            next(err);
+            return;
+          }
+
+          if(entity)
+            orders[i].review = entity;
+
+          resolve();
+        })
+      })
+    ) 
+
+    Promise.all( [...ordersWithDish, ...ordersWithReview] ).then( 
+      () => cb(null, orders) 
+    )
+  });
+}
+
 // Creates a new order or updates an existing order with new data. The provided
 // data is automatically translated into Datastore format. The order will be
 // queued for background processing.
@@ -146,6 +200,7 @@ module.exports = {
   read,
   update,
   delete: _delete,
-  list
+  list,
+  listForUser
 };
 // [END exports]

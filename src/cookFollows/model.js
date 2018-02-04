@@ -87,6 +87,21 @@ function list (cb) {
 }
 // [END list]
 
+function listForUser(userId, cb) {
+
+  const q = ds.createQuery([kind])
+    .filter('userId', '=', userId);
+
+  ds.runQuery(q, (err, entities, nextQuery) => {
+    if (err) {
+      cb(err);
+      return;
+    }
+
+    cb(null, entities.map(fromDatastore));
+  });
+}
+
 // Creates a new cookFollow or updates an existing cookFollow with new data. The provided
 // data is automatically translated into Datastore format. The cookFollow will be
 // queued for background processing.
@@ -146,6 +161,7 @@ module.exports = {
   read,
   update,
   delete: _delete,
-  list
+  list,
+  listForUser
 };
 // [END exports]

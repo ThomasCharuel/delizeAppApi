@@ -146,6 +146,6 @@ module.exports = {
   read,
   update,
   delete: _delete,
-  list
+  list,
 };
 // [END exports]

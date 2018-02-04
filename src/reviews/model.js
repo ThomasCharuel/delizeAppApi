@@ -87,6 +87,24 @@ function list (cb) {
 }
 // [END list]
 
+
+function getForOrder (orderId, cb) {
+  const q = ds.createQuery([kind])
+    .filter("orderId", "=", orderId);
+
+  ds.runQuery(q, (err, entities, nextQuery) => {
+    if (err) {
+      cb(err);
+      return;
+    }
+  
+    if(entities.length)
+      cb(null, entities.map(fromDatastore)[0]);
+    else
+      cb(null, null);
+  });
+}
+
 // Creates a new review or updates an existing review with new data. The provided
 // data is automatically translated into Datastore format. The review will be
 // queued for background processing.
@@ -146,6 +164,7 @@ module.exports = {
   read,
   update,
   delete: _delete,
-  list
+  list,
+  getForOrder
 };
 // [END exports]

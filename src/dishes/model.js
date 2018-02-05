@@ -1,12 +1,6 @@
 const Datastore = require('@google-cloud/datastore');
 const config = require('../../config');
 
-const cooksModel = require('../cooks/model');
-const ordersModel = require('../orders/model');
-const productsModel = require('../products/model');
-
-console.dir(ordersModel)
-
 // [START config]
 const ds = Datastore({
   projectId: config.GCLOUD_PROJECT
@@ -93,6 +87,24 @@ function list (cb) {
 }
 // [END list]
 
+function listForCook (cookId, cb) {
+  const q = ds.createQuery([kind])
+    .filter("cookId", "=", cookId);
+
+  ds.runQuery(q, (err, entities, nextQuery) => {
+    if (err) {
+      cb(err);
+      return;
+    }
+  
+    if(entities.length)
+      cb(null, entities.map(fromDatastore));
+    else
+      cb(null, {});
+  });
+}
+
+
 // Creates a new dish or updates an existing dish with new data. The provided
 // data is automatically translated into Datastore format. The dish will be
 // queued for background processing.
@@ -140,52 +152,7 @@ function read (id, cb) {
     }
 
     let dish = fromDatastore(entity);
-
-    // Get the products linked to a dish
-    const dishWithProducts = dish.products.map( 
-      (productId, i) => new Promise( resolve => {
-        productsModel.read(productId, (err, entity) => {
-          if (err) {
-            next(err);
-            return;
-          }
-          dish.products[i] = entity;
-          resolve();
-        })
-      })
-    )
-
-    // Get the cook linked to a dish
-    const dishWithCook = new Promise( resolve => {
-      cooksModel.read(dish.cookId, (err, entity) => {
-        if (err) {
-          next(err);
-          return;
-        }
-        dish.cook = entity;
-        resolve();
-      })
-    })
-
-    // Get the orders linked to a dish
-    const dishWithOrders = new Promise( resolve => {
-      ordersModel.listForDish(Number(dish.id), (err, entities) => {
-        console.log('hello')
-        if (err) {
-          next(err);
-          return;
-        }
-        dish.orders = entities;
-        
-        resolve();
-      });
-    })
-    
-
-    Promise.all( [...dishWithProducts, dishWithCook, dishWithOrders] ).then( 
-      () => cb(null, dish) 
-    )
-    
+    cb(null, dish)
   });
 }
 
@@ -200,6 +167,7 @@ module.exports = {
   read,
   update,
   delete: _delete,
-  list
+  list,
+  listForCook
 };
 // [END exports]

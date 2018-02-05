@@ -55,6 +55,21 @@ router.get('/:userFollow', (req, res, next) => {
 });
 
 
+/**
+ * GET /userFollows/user/:userId
+ *
+ * Retrieve userFollows for an user.
+ */
+router.get('/user/:userId', (req, res, next) => {
+  model.listForUser(Number(req.params.userId), (err, entities) => {
+    if (err) {
+      next(err);
+      return;
+    }
+    res.json(entities);
+  });
+});
+
 
 /**
  * Errors on "/userFollows/*" routes.

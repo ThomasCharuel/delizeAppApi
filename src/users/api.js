@@ -55,7 +55,6 @@ router.get('/:user', (req, res, next) => {
 });
 
 
-
 /**
  * Errors on "/users/*" routes.
  */

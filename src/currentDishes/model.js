@@ -5,7 +5,7 @@ const config = require('../../config');
 const ds = Datastore({
   projectId: config.GCLOUD_PROJECT
 });
-const kind = 'Dish';
+const kind = 'CurrentDishes';
 // [END config]
 
 // Translates from Datastore's entity format to
@@ -87,6 +87,22 @@ function list (cb) {
 }
 // [END list]
 
+function listForDish(dishId, cb) {
+  const q = ds.createQuery([kind])
+    .filter('dishId', '=', dishId);
+
+  ds.runQuery(q, (err, entities, nextQuery) => {
+    if (err) {
+      cb(err);
+      return;
+    }
+
+    let currentDishes = entities.map(fromDatastore);
+
+    cb(null, currentDishes);
+  });
+}
+
 // Creates a new dish or updates an existing dish with new data. The provided
 // data is automatically translated into Datastore format. The dish will be
 // queued for background processing.
@@ -101,7 +117,7 @@ function update (id, data, cb) {
 
   const entity = {
     key: key,
-    data: toDatastore(data, ['imageUrl', 'description'])
+    data: toDatastore(data, [])
   };
 
   ds.save(
@@ -146,6 +162,7 @@ module.exports = {
   read,
   update,
   delete: _delete,
-  list
+  list,
+  listForDish
 };
 // [END exports]

@@ -1,12 +1,6 @@
 const Datastore = require('@google-cloud/datastore');
 const config = require('../../config');
 
-
-const usersModel = require('../users/model');
-const dishesModel = require('../dishes/model');
-const reviewsModel = require('../reviews/model');
-
-
 // [START config]
 const ds = Datastore({
   projectId: config.GCLOUD_PROJECT
@@ -105,40 +99,7 @@ function listForDish(dishId, cb) {
 
     let orders = entities.map(fromDatastore);
 
-    // Get the users linked to an order
-    const ordersWithUser = orders.map( 
-      (order, i) => new Promise( resolve => {
-        usersModel.read(order.userId, (err, entity) => {
-          if (err) {
-            next(err);
-            return;
-          }
-          orders[i].user = entity;
-          resolve();
-        })
-      })
-    )
-
-    // Get the reviews linked to an order
-    const ordersWithReview = orders.map(
-      (order, i) => new Promise( resolve => {
-        reviewsModel.getForOrder(Number(order.id), (err, entity) => {
-          if (err) {
-            next(err);
-            return;
-          }
-
-          if(entity)
-            orders[i].review = entity;
-
-          resolve();
-        })
-      })
-    ) 
-
-    Promise.all( [...ordersWithUser, ...ordersWithReview] ).then( 
-      () => cb(null, orders) 
-    )
+    cb(null, orders);
   });
 }
 
@@ -154,41 +115,7 @@ function listForUser(userId, cb) {
     }
 
     let orders = entities.map(fromDatastore);
-
-    // Get the dishes linked to an order
-    const ordersWithDish = orders.map( 
-      (order, i) => new Promise( resolve => {
-        dishesModel.read(order.dishId, (err, entity) => {
-          if (err) {
-            next(err);
-            return;
-          }
-          orders[i].dish = entity;
-          resolve();
-        })
-      })
-    )
-
-    // Get the reviews linked to an order
-    const ordersWithReview = orders.map(
-      (order, i) => new Promise( resolve => {
-        reviewsModel.getForOrder(Number(order.id), (err, entity) => {
-          if (err) {
-            next(err);
-            return;
-          }
-
-          if(entity)
-            orders[i].review = entity;
-
-          resolve();
-        })
-      })
-    ) 
-
-    Promise.all( [...ordersWithDish, ...ordersWithReview] ).then( 
-      () => cb(null, orders) 
-    )
+    cb(null, orders);
   });
 }
 

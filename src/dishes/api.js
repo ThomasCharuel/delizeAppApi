@@ -55,6 +55,21 @@ router.get('/:dish', (req, res, next) => {
 });
 
 /**
+ * GET /dishes/cook/:cookId
+ *
+ * Retrieve dishes for an cook.
+ */
+router.get('/cook/:cookId', (req, res, next) => {
+  model.listForCook(Number(req.params.cookId), (err, entities) => {
+    if (err) {
+      next(err);
+      return;
+    }
+    res.json(entities);
+  });
+});
+
+/**
  * Errors on "/dishes/*" routes.
  */
 router.use((err, req, res, next) => {

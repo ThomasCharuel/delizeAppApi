@@ -88,7 +88,7 @@ function list (cb) {
 // [END list]
 
 
-function getForOrder (orderId, cb) {
+function listForOrder (orderId, cb) {
   const q = ds.createQuery([kind])
     .filter("orderId", "=", orderId);
 
@@ -165,6 +165,6 @@ module.exports = {
   update,
   delete: _delete,
   list,
-  getForOrder
+  listForOrder
 };
 // [END exports]

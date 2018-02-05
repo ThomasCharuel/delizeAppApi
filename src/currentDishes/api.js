@@ -9,9 +9,9 @@ const router = express.Router();
 router.use(bodyParser.json());
 
 /**
- * GET /dishes
+ * GET /currentDishes
  *
- * Retrieve dishes
+ * Retrieve currentDishes
  */
 router.get('/', (req, res, next) => {
   model.list((err, entities) => {
@@ -20,6 +20,21 @@ router.get('/', (req, res, next) => {
       return;
     }
     res.json( entities );
+  });
+});
+
+/**
+ * GET /currentDishes/dish/:dishId
+ *
+ * Retrieve selling information for a dish
+ */
+router.get('/dish/:dishId', (req, res, next) => {
+  model.listForDish(Number(req.params.dishId), (err, entities) => {
+    if (err) {
+      next(err);
+      return;
+    }
+    res.json(entities);
   });
 });
 

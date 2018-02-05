@@ -1,9 +1,6 @@
 const Datastore = require('@google-cloud/datastore');
 const config = require('../../config');
 
-const userFollowsModel = require('../userFollows/model');
-const cookFollowsModel = require('../cookFollows/model');
-
 
 // [START config]
 const ds = Datastore({
@@ -138,34 +135,7 @@ function read (id, cb) {
 
     let user = fromDatastore(entity);
 
-    // Get follows for an user
-    userFollowsModel.listForUser(Number(user.id), (err, entities) => {
-      if (err) {
-        next(err);
-        return;
-      }
-      user.follows = entities;
-
-      // Get cookFollows for an user
-      cookFollowsModel.listForUser(Number(user.id), (err, entities) => {
-        if (err) {
-          next(err);
-          return;
-        }
-        user.cookFollows = entities;
-        
-        // Get orders for an user
-        require('../orders/model').listForUser(Number(user.id), (err, entities) => {
-          if (err) {
-            next(err);
-            return;
-          }
-          user.orders = entities;
-          
-          cb(null, user);
-        });
-      });
-    });
+    cb(null, user);
   });
 }
 

@@ -54,7 +54,35 @@ router.get('/:order', (req, res, next) => {
   });
 });
 
+/**
+ * GET /orders/user/:userId
+ *
+ * Retrieve orders for an user.
+ */
+router.get('/user/:userId', (req, res, next) => {
+  model.listForUser(Number(req.params.userId), (err, entities) => {
+    if (err) {
+      next(err);
+      return;
+    }
+    res.json(entities);
+  });
+});
 
+/**
+ * GET /orders/dish/:dishId
+ *
+ * Retrieve orders for an dish.
+ */
+router.get('/dish/:dishId', (req, res, next) => {
+  model.listForDish(Number(req.params.dishId), (err, entities) => {
+    if (err) {
+      next(err);
+      return;
+    }
+    res.json(entities);
+  });
+});
 
 /**
  * Errors on "/orders/*" routes.

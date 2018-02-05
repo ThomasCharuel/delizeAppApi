@@ -54,6 +54,21 @@ router.get('/:review', (req, res, next) => {
   });
 });
 
+/**
+ * GET /reviews/order/:orderId
+ *
+ * Retrieve orders for an order.
+ */
+router.get('/order/:orderId', (req, res, next) => {
+  model.listForOrder(Number(req.params.orderId), (err, entity) => {
+    if (err) {
+      next(err);
+      return;
+    }
+    res.json(entity);
+  });
+});
+
 
 
 /**

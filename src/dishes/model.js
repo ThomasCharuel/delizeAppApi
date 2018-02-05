@@ -1,6 +1,12 @@
 const Datastore = require('@google-cloud/datastore');
 const config = require('../../config');
 
+const cooksModel = require('../cooks/model');
+const ordersModel = require('../orders/model');
+const productsModel = require('../products/model');
+
+console.dir(ordersModel)
+
 // [START config]
 const ds = Datastore({
   projectId: config.GCLOUD_PROJECT
@@ -120,6 +126,7 @@ function create (data, cb) {
 
 function read (id, cb) {
   const key = ds.key([kind, parseInt(id, 10)]);
+
   ds.get(key, (err, entity) => {
     if (!err && !entity) {
       err = {
@@ -131,7 +138,54 @@ function read (id, cb) {
       cb(err);
       return;
     }
-    cb(null, fromDatastore(entity));
+
+    let dish = fromDatastore(entity);
+
+    // Get the products linked to a dish
+    const dishWithProducts = dish.products.map( 
+      (productId, i) => new Promise( resolve => {
+        productsModel.read(productId, (err, entity) => {
+          if (err) {
+            next(err);
+            return;
+          }
+          dish.products[i] = entity;
+          resolve();
+        })
+      })
+    )
+
+    // Get the cook linked to a dish
+    const dishWithCook = new Promise( resolve => {
+      cooksModel.read(dish.cookId, (err, entity) => {
+        if (err) {
+          next(err);
+          return;
+        }
+        dish.cook = entity;
+        resolve();
+      })
+    })
+
+    // Get the orders linked to a dish
+    const dishWithOrders = new Promise( resolve => {
+      ordersModel.listForDish(Number(dish.id), (err, entities) => {
+        console.log('hello')
+        if (err) {
+          next(err);
+          return;
+        }
+        dish.orders = entities;
+        
+        resolve();
+      });
+    })
+    
+
+    Promise.all( [...dishWithProducts, dishWithCook, dishWithOrders] ).then( 
+      () => cb(null, dish) 
+    )
+    
   });
 }
 

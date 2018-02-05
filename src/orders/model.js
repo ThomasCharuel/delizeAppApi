@@ -1,6 +1,8 @@
 const Datastore = require('@google-cloud/datastore');
 const config = require('../../config');
 
+
+const usersModel = require('../users/model');
 const dishesModel = require('../dishes/model');
 const reviewsModel = require('../reviews/model');
 
@@ -91,6 +93,55 @@ function list (cb) {
 }
 // [END list]
 
+function listForDish(dishId, cb) {
+  const q = ds.createQuery([kind])
+    .filter('dishId', '=', dishId);
+
+  ds.runQuery(q, (err, entities, nextQuery) => {
+    if (err) {
+      cb(err);
+      return;
+    }
+
+    let orders = entities.map(fromDatastore);
+
+    // Get the users linked to an order
+    const ordersWithUser = orders.map( 
+      (order, i) => new Promise( resolve => {
+        usersModel.read(order.userId, (err, entity) => {
+          if (err) {
+            next(err);
+            return;
+          }
+          orders[i].user = entity;
+          resolve();
+        })
+      })
+    )
+
+    // Get the reviews linked to an order
+    const ordersWithReview = orders.map(
+      (order, i) => new Promise( resolve => {
+        reviewsModel.getForOrder(Number(order.id), (err, entity) => {
+          if (err) {
+            next(err);
+            return;
+          }
+
+          if(entity)
+            orders[i].review = entity;
+
+          resolve();
+        })
+      })
+    ) 
+
+    Promise.all( [...ordersWithUser, ...ordersWithReview] ).then( 
+      () => cb(null, orders) 
+    )
+  });
+}
+
 function listForUser(userId, cb) {
 
   const q = ds.createQuery([kind])
@@ -118,7 +169,7 @@ function listForUser(userId, cb) {
       })
     )
 
-    // Get the revews linked to an order
+    // Get the reviews linked to an order
     const ordersWithReview = orders.map(
       (order, i) => new Promise( resolve => {
         reviewsModel.getForOrder(Number(order.id), (err, entity) => {
@@ -174,6 +225,7 @@ function create (data, cb) {
 
 function read (id, cb) {
   const key = ds.key([kind, parseInt(id, 10)]);
+
   ds.get(key, (err, entity) => {
     if (!err && !entity) {
       err = {
@@ -201,6 +253,7 @@ module.exports = {
   update,
   delete: _delete,
   list,
+  listForDish,
   listForUser
 };
 // [END exports]

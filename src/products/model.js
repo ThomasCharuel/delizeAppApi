@@ -87,6 +87,21 @@ function list (cb) {
 }
 // [END list]
 
+function listForDish(dishId, cb) {
+
+  const q = ds.createQuery([kind])
+    .filter('dishId', '=', dishId);
+
+  ds.runQuery(q, (err, entities, nextQuery) => {
+    if (err) {
+      cb(err);
+      return;
+    }
+
+    cb(null, entities.map(fromDatastore));
+  });
+}
+
 // Creates a new product or updates an existing product with new data. The provided
 // data is automatically translated into Datastore format. The product will be
 // queued for background processing.
@@ -147,5 +162,6 @@ module.exports = {
   update,
   delete: _delete,
   list,
+  listForDish
 };
 // [END exports]

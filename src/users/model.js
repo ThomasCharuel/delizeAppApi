@@ -3,7 +3,7 @@ const config = require('../../config');
 
 const userFollowsModel = require('../userFollows/model');
 const cookFollowsModel = require('../cookFollows/model');
-const ordersModel = require('../orders/model');
+
 
 // [START config]
 const ds = Datastore({
@@ -155,7 +155,7 @@ function read (id, cb) {
         user.cookFollows = entities;
         
         // Get orders for an user
-        ordersModel.listForUser(Number(user.id), (err, entities) => {
+        require('../orders/model').listForUser(Number(user.id), (err, entities) => {
           if (err) {
             next(err);
             return;

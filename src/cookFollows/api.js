@@ -70,6 +70,40 @@ router.get('/user/:userId', (req, res, next) => {
 });
 
 
+/**
+ * GET /cookFollows/cook/:cookId
+ *
+ * Retrieve follows for an cook.
+ */
+router.get('/cook/:cookId', (req, res, next) => {
+  model.listForCook(Number(req.params.cookId), (err, entities) => {
+    if (err) {
+      next(err);
+      return;
+    }
+    res.json(entities);
+  });
+});
+
+
+/**
+ * DELETE /cookFollows/:id
+ *
+ * Delete a cookFollow
+ */
+router.delete('/:id', (req, res, next) => {
+  model.delete(req.params.id, (err) => {
+    if(err) {
+      next(err);
+      return;
+    }
+    res.json({
+      message: 'Successfully deleted'
+    })
+  })
+})
+
+
 
 /**
  * Errors on "/cookFollows/*" routes.

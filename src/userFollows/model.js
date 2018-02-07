@@ -102,6 +102,21 @@ function listForUser(userId, cb) {
   });
 }
 
+function listForRecipientUser(userId, cb) {
+
+  const q = ds.createQuery([kind])
+    .filter('recipientId', '=', userId);
+
+  ds.runQuery(q, (err, entities, nextQuery) => {
+    if (err) {
+      cb(err);
+      return;
+    }
+
+    cb(null, entities.map(fromDatastore));
+  });
+}
+
 // Creates a new userFollow or updates an existing userFollow with new data. The provided
 // data is automatically translated into Datastore format. The userFollow will be
 // queued for background processing.
@@ -163,6 +178,7 @@ module.exports = {
   update,
   delete: _delete,
   list,
-  listForUser
+  listForUser,
+  listForRecipientUser
 };
 // [END exports]

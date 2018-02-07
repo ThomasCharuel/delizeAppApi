@@ -70,6 +70,37 @@ router.get('/user/:userId', (req, res, next) => {
   });
 });
 
+/**
+ * GET /userFollows/recipient/:userId
+ *
+ * Retrieve userFollows for an recipient user. (retrieve the followers)
+ */
+router.get('/recipientUser/:userId', (req, res, next) => {
+  model.listForRecipientUser(Number(req.params.userId), (err, entities) => {
+    if (err) {
+      next(err);
+      return;
+    }
+    res.json(entities);
+  });
+});
+
+/**
+ * DELETE /userFollows/:id
+ *
+ * Delete a userFollow
+ */
+router.delete('/:id', (req, res, next) => {
+  model.delete(req.params.id, (err) => {
+    if(err) {
+      next(err);
+      return;
+    }
+    res.json({
+      message: 'Successfully deleted'
+    })
+  })
+})
 
 /**
  * Errors on "/userFollows/*" routes.

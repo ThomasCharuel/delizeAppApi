@@ -96,11 +96,8 @@ function listForCook (cookId, cb) {
       cb(err);
       return;
     }
-  
-    if(entities.length)
-      cb(null, entities.map(fromDatastore));
-    else
-      cb(null, {});
+
+    cb(null, entities.map(fromDatastore));
   });
 }
 

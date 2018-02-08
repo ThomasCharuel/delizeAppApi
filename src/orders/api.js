@@ -84,6 +84,25 @@ router.get('/dish/:dishId', (req, res, next) => {
   });
 });
 
+router.get('/validate/:orderId', (req, res, next) => {
+  model.read(req.params.orderId, (err, entity) => {
+    if (err) {
+      next(err);
+      return;
+    }
+    
+    // Update current value: the order is completed
+    entity.current = false;
+
+    model.update(req.params.orderId, entity, (err, entity) => {
+      if (err) {
+        next(err);
+        return;
+      }
+      res.json(entity)
+    })
+  });
+})
 
 
 /**

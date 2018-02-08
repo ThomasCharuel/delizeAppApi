@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const model = require('./model');
+const currentDishesModel = require('../currentDishes/model');
 
 const router = express.Router();
 
@@ -30,12 +31,46 @@ router.get('/', (req, res, next) => {
  * Create a new order.
  */
 router.post('/', (req, res, next) => {
-  model.create(req.body, (err, entity) => {
+
+  let order = req.body;
+
+  // Find the current dish using dishId
+  currentDishesModel.listForDish(order.dishId, (err, entities) => {
     if (err) {
       next(err);
       return;
     }
-    res.json(entity);
+
+    let currentDish = entities[0];
+
+    currentDish.availablePortions -= order.nbPortions;
+
+    // Check if there is enough portions for the order
+    if(currentDish.availablePortions < 0){
+      err = {
+        code: 409,
+        message: 'Il n\'y a plus assez de portions disponibles pour ce plat'
+      }
+      next(err);
+    }
+
+    // Update the number of available portions
+    currentDishesModel.update(currentDish.id, currentDish, (err, entity) => {
+      if (err) {
+        next(err);
+        return;
+      }
+
+      // Create the order
+      model.create(req.body, (err, entity) => {
+        if (err) {
+          next(err);
+          return;
+        }
+
+        res.json(entity);
+      });
+    })
   });
 });
 
@@ -99,6 +134,7 @@ router.get('/validate/:orderId', (req, res, next) => {
         next(err);
         return;
       }
+
       res.json(entity)
     })
   });
